@@ -30,7 +30,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TICKER: SMH
-          THRESHOLD: "600"
+          THRESHOLD: "527"
         run: python price_alert.py
 
       - name: Commit state file
