@@ -1,0 +1,42 @@
+name: SMH Price Alert
+
+on:
+  schedule:
+    # Every 30 min, 13:00-22:00 UTC, Mon-Fri
+    # Covers US market hours (9:30am-4pm ET) across both EST and EDT
+    - cron: "*/30 13-22 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  check-price:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run price check
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TICKER: SMH
+          THRESHOLD: "527"
+        run: python price_alert.py
+
+      - name: Commit state file
+        run: |
+          git config user.name "price-alert-bot"
+          git config user.email "actions@github.com"
+          git add state.json
+          git diff --quiet --cached || git commit -m "Update alert state"
+          git push
