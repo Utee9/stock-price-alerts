@@ -3,11 +3,27 @@ import json
 import requests
 from datetime import datetime, timezone
 
-TICKER = os.environ.get("TICKER", "SMH")
-THRESHOLD = float(os.environ.get("THRESHOLD", "527"))
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+CONFIG_FILE = "tickers.json"
 STATE_FILE = "state.json"
+
+
+def load_config() -> list:
+    with open(CONFIG_FILE) as f:
+        return json.load(f)
+
+
+def load_state() -> dict:
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE) as f:
+            return json.load(f)
+    return {}
+
+
+def save_state(state: dict) -> None:
+    with open(STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
 
 
 def get_price(ticker: str) -> float:
@@ -20,53 +36,63 @@ def get_price(ticker: str) -> float:
     return result["meta"]["regularMarketPrice"]
 
 
-def load_state() -> dict:
-    if os.path.exists(STATE_FILE):
-        with open(STATE_FILE) as f:
-            return json.load(f)
-    return {}
-
-
-def save_state(state: dict) -> None:
-    with open(STATE_FILE, "w") as f:
-        json.dump(state, f)
-
-
 def send_telegram(message: str) -> None:
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {"chat_id": CHAT_ID, "text": message}
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": message,
+        "parse_mode": "Markdown",
+        "disable_notification": False,
+    }
     resp = requests.post(url, json=payload, timeout=10)
     resp.raise_for_status()
 
 
-def main() -> None:
-    price = get_price(TICKER)
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    state = load_state()
+def check_ticker(entry: dict, state: dict, today: str) -> None:
+    ticker = entry["ticker"]
+    threshold = float(entry["threshold"])
+    direction = entry.get("direction", "above").lower()
 
-    print(f"{TICKER} price: {price} | threshold: {THRESHOLD}")
+    price = get_price(ticker)
+    print(f"{ticker} price: {price} | threshold: {threshold} | direction: {direction}")
 
-    if price <= THRESHOLD:
-        if state.get("alerted_date") == today:
-            print("Already alerted today, skipping.")
+    condition_met = price >= threshold if direction == "above" else price <= threshold
+    ticker_state = state.get(ticker, {})
+
+    if condition_met:
+        if ticker_state.get("alerted_date") == today:
+            print(f"{ticker}: already alerted today, skipping.")
             return
+        arrow = "🚀" if direction == "above" else "🔻"
         message = (
-            f"🚨 {TICKER} ALERT\n"
+            f"{arrow} *{ticker} ALERT*\n"
             f"Price: ${price:.2f}\n"
-            f"Threshold: ${THRESHOLD:.2f}\n"
+            f"Threshold ({direction}): ${threshold:.2f}\n"
             f"Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
         )
         send_telegram(message)
-        state["alerted_date"] = today
-        save_state(state)
-        print("Alert sent.")
+        ticker_state["alerted_date"] = today
+        state[ticker] = ticker_state
+        print(f"{ticker}: alert sent.")
     else:
-        # Reset the flag once we're back above threshold on a new day,
-        # so a fresh alert fires if it rises then dips below again later.
-        if state.get("alerted_date") != today:
-            state.pop("alerted_date", None)
-            save_state(state)
-        print("Above threshold, no alert.")
+        if ticker_state.get("alerted_date") != today:
+            ticker_state.pop("alerted_date", None)
+            state[ticker] = ticker_state
+        print(f"{ticker}: condition not met, no alert.")
+
+
+def main() -> None:
+    config = load_config()
+    state = load_state()
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    for entry in config:
+        try:
+            check_ticker(entry, state, today)
+        except Exception as e:
+            print(f"Error checking {entry.get('ticker')}: {e}")
+
+    save_state(state)
 
 
 if __name__ == "__main__":
