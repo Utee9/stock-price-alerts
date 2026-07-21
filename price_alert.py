@@ -46,12 +46,12 @@ def main() -> None:
 
     print(f"{TICKER} price: {price} | threshold: {THRESHOLD}")
 
-    if price >= THRESHOLD:
+    if price <= THRESHOLD:
         if state.get("alerted_date") == today:
             print("Already alerted today, skipping.")
             return
         message = (
-            f"🚀 {TICKER} ALERT\n"
+            f"🚨 {TICKER} ALERT\n"
             f"Price: ${price:.2f}\n"
             f"Threshold: ${THRESHOLD:.2f}\n"
             f"Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
@@ -61,12 +61,12 @@ def main() -> None:
         save_state(state)
         print("Alert sent.")
     else:
-        # Reset the flag once we're back below threshold on a new day,
-        # so a fresh alert fires if it dips and crosses again later.
+        # Reset the flag once we're back above threshold on a new day,
+        # so a fresh alert fires if it rises then dips below again later.
         if state.get("alerted_date") != today:
             state.pop("alerted_date", None)
             save_state(state)
-        print("Below threshold, no alert.")
+        print("Above threshold, no alert.")
 
 
 if __name__ == "__main__":
