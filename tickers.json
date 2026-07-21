@@ -1,7 +1,7 @@
 [
   {
     "ticker": "SMH",
-    "threshold": 600,
+    "threshold": 528,
     "direction": "below"
   }
 ]
