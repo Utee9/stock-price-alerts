@@ -4,4 +4,9 @@
     "threshold": 528,
     "direction": "below"
   }
+  ,{
+    "ticker": "DRAM",
+    "threshold": 48,
+    "direction": "below"
+  }
 ]
