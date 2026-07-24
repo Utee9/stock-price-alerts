@@ -2,11 +2,19 @@
   {
     "ticker": "SMH",
     "threshold": 528,
-    "direction": "below"
-  }
-  ,{
+    "direction": "below",
+    "label": "SMH below 528"
+  },
+  {
+    "ticker": "SMH",
+    "threshold": 540,
+    "direction": "below",
+    "label": "SMH below 540"
+  },
+  {
     "ticker": "DRAM",
     "threshold": 48,
-    "direction": "below"
+    "direction": "below",
+    "label": "DRAM below 48"
   }
 ]
