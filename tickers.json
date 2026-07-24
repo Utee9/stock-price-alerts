@@ -4,14 +4,26 @@
     "threshold": 528,
     "direction": "below",
     "label": "SMH below 528"
-  },
-  {
+  }
+  ,{
+    "ticker": "SMH",
+    "threshold": 670,
+    "direction": "above",
+    "label": "SMH above 670, sell and go to crypto based platform for tokenised stocks"
+  }
+  ,{
+    "ticker": "SMH",
+    "threshold": 560,
+    "direction": "above",
+    "label": "testing if this actually works"
+  }
+  ,{
     "ticker": "SMH",
     "threshold": 540,
     "direction": "below",
     "label": "SMH below 540"
-  },
-  {
+  }
+  ,{
     "ticker": "DRAM",
     "threshold": 48,
     "direction": "below",
