@@ -48,47 +48,57 @@ def send_telegram(message: str) -> None:
     resp.raise_for_status()
 
 
-def check_ticker(entry: dict, state: dict, today: str) -> None:
+def check_ticker(entry: dict, state: dict, today: str, price_cache: dict) -> None:
     ticker = entry["ticker"]
     threshold = float(entry["threshold"])
     direction = entry.get("direction", "above").lower()
+    label = entry.get("label")  # optional custom note, e.g. "sell target"
 
-    price = get_price(ticker)
-    print(f"{ticker} price: {price} | threshold: {threshold} | direction: {direction}")
+    # unique key so multiple alerts on the same ticker don't overwrite each other
+    alert_key = entry.get("id") or f"{ticker}_{threshold}_{direction}"
+
+    if ticker not in price_cache:
+        price_cache[ticker] = get_price(ticker)
+    price = price_cache[ticker]
+
+    print(f"[{alert_key}] {ticker} price: {price} | threshold: {threshold} | direction: {direction}")
 
     condition_met = price >= threshold if direction == "above" else price <= threshold
-    ticker_state = state.get(ticker, {})
+    alert_state = state.get(alert_key, {})
 
     if condition_met:
-        if ticker_state.get("alerted_date") == today:
-            print(f"{ticker}: already alerted today, skipping.")
+        if alert_state.get("alerted_date") == today:
+            print(f"[{alert_key}]: already alerted today, skipping.")
             return
         arrow = "🚀" if direction == "above" else "🔻"
+        extra = f"\nNote: {label}" if label else ""
         message = (
             f"{arrow} *{ticker} ALERT*\n"
             f"Price: ${price:.2f}\n"
-            f"Threshold ({direction}): ${threshold:.2f}\n"
+            f"Threshold ({direction}): ${threshold:.2f}"
+            f"{extra}\n"
             f"Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
         )
         send_telegram(message)
-        ticker_state["alerted_date"] = today
-        state[ticker] = ticker_state
-        print(f"{ticker}: alert sent.")
+        alert_state["alerted_date"] = today
+        state[alert_key] = alert_state
+        print(f"[{alert_key}]: alert sent.")
     else:
-        if ticker_state.get("alerted_date") != today:
-            ticker_state.pop("alerted_date", None)
-            state[ticker] = ticker_state
-        print(f"{ticker}: condition not met, no alert.")
+        if alert_state.get("alerted_date") != today:
+            alert_state.pop("alerted_date", None)
+            state[alert_key] = alert_state
+        print(f"[{alert_key}]: condition not met, no alert.")
 
 
 def main() -> None:
     config = load_config()
     state = load_state()
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    price_cache = {}
 
     for entry in config:
         try:
-            check_ticker(entry, state, today)
+            check_ticker(entry, state, today, price_cache)
         except Exception as e:
             print(f"Error checking {entry.get('ticker')}: {e}")
 
