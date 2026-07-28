@@ -6,7 +6,9 @@
   "SMH_670.0_above": {},
   "SMH_560.0_above": {},
   "SMH_540.0_below": {
-    "alerted_date": "2026-07-27"
+    "alerted_date": "2026-07-28"
   },
-  "DRAM_48.0_below": {}
+  "DRAM_48.0_below": {
+    "alerted_date": "2026-07-28"
+  }
 }
