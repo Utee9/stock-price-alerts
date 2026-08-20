@@ -6,6 +6,12 @@
     "label": "SMH below 528"
   }
   ,{
+    "ticker": "KEEL",
+    "threshold": 3,
+    "direction": "below",
+    "label": "Check if bitfarm is below $3"
+  }
+  ,{
     "ticker": "SMH",
     "threshold": 670,
     "direction": "above",
