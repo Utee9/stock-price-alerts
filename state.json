@@ -4,12 +4,12 @@
   "DRAM": {},
   "SMH_528.0_below": {},
   "SMH_670.0_above": {},
-  "SMH_560.0_above": {
-    "alerted_date": "2026-10-15"
-  },
+  "SMH_560.0_above": {},
   "SMH_540.0_below": {},
-  "DRAM_48.0_below": {},
+  "DRAM_48.0_below": {
+    "alerted_date": "2026-10-16"
+  },
   "KEEL_3.0_below": {
-    "alerted_date": "2026-10-15"
+    "alerted_date": "2026-10-16"
   }
 }
