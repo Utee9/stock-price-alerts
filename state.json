@@ -2,18 +2,12 @@
   "alerted_date": "2026-07-21",
   "SMH": {},
   "DRAM": {},
-  "SMH_528.0_below": {
-    "alerted_date": "2026-10-23"
-  },
+  "SMH_528.0_below": {},
   "SMH_670.0_above": {},
   "SMH_560.0_above": {},
-  "SMH_540.0_below": {
-    "alerted_date": "2026-10-23"
-  },
-  "DRAM_48.0_below": {
-    "alerted_date": "2026-10-23"
-  },
+  "SMH_540.0_below": {},
+  "DRAM_48.0_below": {},
   "KEEL_3.0_below": {
-    "alerted_date": "2026-10-23"
+    "alerted_date": "2026-10-26"
   }
 }
