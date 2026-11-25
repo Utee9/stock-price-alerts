@@ -8,12 +8,12 @@
   "SMH_670.0_above": {},
   "SMH_560.0_above": {},
   "SMH_540.0_below": {
-    "alerted_date": "2026-11-24"
+    "alerted_date": "2026-11-25"
   },
   "DRAM_48.0_below": {
-    "alerted_date": "2026-11-24"
+    "alerted_date": "2026-11-25"
   },
   "KEEL_3.0_below": {
-    "alerted_date": "2026-11-24"
+    "alerted_date": "2026-11-25"
   }
 }
